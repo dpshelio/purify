@@ -1,3 +1,6 @@
+# For some reason circle is not finding
+# The version and jobs keys... but they are, clearly!, here.
+
 version: 2
 jobs:
   build:
