@@ -1,6 +1,3 @@
-# For some reason circle is not finding
-# The version and jobs keys... but they are, clearly!, here.
-
 version: 2
 jobs:
   build:
@@ -65,7 +62,7 @@ jobs:
             -DCFitsIO_URL=https://github.com/UCL-RITS/BinaryBlobs-dependencies/raw/master/Astronomy/cfitsio3410.tar.gz \
             -DMPIEXEC:FILEPATH=$(which mpirun) -DMPIEXEC_MAX_NUMPROCS=4
 
-      -run:
+      - run:
         name: Compile
         command: |
           make VERBOSE=1
