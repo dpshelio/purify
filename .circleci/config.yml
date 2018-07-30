@@ -28,7 +28,7 @@ jobs:
           name: install dependencies
           command: |
             sudo apt update
-            sudo apt-get install software-properties-common
+            sudo apt-get install -y software-properties-common
             sudo add-apt-repository ppa:ubuntu-toolchain-r/test
             sudo add-apt-repository ppa:
             sudo apt-get update
