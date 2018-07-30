@@ -4,7 +4,7 @@ jobs:
     docker:
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      - image: circleci/buildpack-deps:14.04-curl-browsers
+      - image: ubuntu:14.04
         environment:
           OMP_NUM_THREADS: 4
           LDFLAGS: '-pthread'
