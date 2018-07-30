@@ -65,11 +65,13 @@ jobs:
       - run:
           name: Compile
           command: |
+            cd ~/repo/build
             make VERBOSE=1
 
       - run:
           name: run tests
           command: |
+            cd ~/repo/build
             ctest -T test --output-on-failure -V
 
       - store_artifacts:
