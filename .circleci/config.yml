@@ -61,6 +61,7 @@ jobs:
             -DSopt_GIT_TAG=development \
             -DCFitsIO_URL=https://github.com/UCL-RITS/BinaryBlobs-dependencies/raw/master/Astronomy/cfitsio3410.tar.gz \
             -DMPIEXEC:FILEPATH=$(which mpirun) -DMPIEXEC_MAX_NUMPROCS=4
+
       -run:
         name: Compile
         command: |
