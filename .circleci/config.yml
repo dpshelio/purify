@@ -63,9 +63,9 @@ jobs:
             -DMPIEXEC:FILEPATH=$(which mpirun) -DMPIEXEC_MAX_NUMPROCS=4
 
       - run:
-        name: Compile
-        command: |
-          make VERBOSE=1
+          name: Compile
+          command: |
+            make VERBOSE=1
 
       - run:
           name: run tests
