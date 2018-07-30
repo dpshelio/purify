@@ -5,6 +5,12 @@ jobs:
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/buildpack-deps:14.04-curl-browsers
+        environment:
+          OMP_NUM_THREADS: 4
+          LDFLAGS: '-pthread'
+          CC: gcc-7
+          CXX: g++-7
+
 
     working_directory: ~/repo
 
@@ -21,10 +27,22 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            apt update
-            add-apt-repository ppa:ubuntu-toolchain-r/test
-            apt-get update
-            apt install -y g++-7 libtiff5-dev libgomp1 libfftw3-dev libboost-all-dev libeigen3-dev libyaml-cpp-dev
+            sudo apt update
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+            sudo apt-get update
+            sudo apt install -y g++-7 libtiff5-dev libgomp1 libfftw3-dev libboost-all-dev libeigen3-dev libyaml-cpp-dev
+
+      - run:
+          name: build openmpi
+          command: |
+            cwd=$(pwd)
+            cd /tmp
+            curl -O https://download.open-mpi.org/release/open-mpi/v3.1/openmpi-3.1.1.tar.bz2
+            tar jxf openmpi-3.1.1.tar.bz2
+            cd openmpi-3.1.1
+            ./configure --prefix=/usr
+            sudo make all install
+            cd $cwd
 
       # - save_cache:
       #     paths:
@@ -36,8 +54,6 @@ jobs:
           command: |
             mkdir build
             cd build
-            export OMP_NUM_THREADS=4
-            export LDFLAGS='-pthread'
             cmake .. -DCMAKE_BUILD_TYPE=Release -Dtests=ON -Dexamples=OFF \
             -Ddompi=ON -Dopenmp=ON -Ddocs=OFF -Dbenchmarks=OFF \
             -DSopt_GIT_REPOSITORY=https://github.com/astro-informatics/sopt.git \
