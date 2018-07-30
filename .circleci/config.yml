@@ -31,7 +31,7 @@ jobs:
             sudo apt-get install -y software-properties-common
             sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
             sudo apt-get update
-            sudo apt install -y g++-7 libtiff5-dev libgomp1 libfftw3-dev libboost-all-dev libeigen3-dev libyaml-cpp-dev curl cmake3
+            sudo apt install -y g++-7 libtiff5-dev libgomp1 libfftw3-dev libboost-all-dev libeigen3-dev libyaml-cpp-dev curl cmake3 git
 
       - run:
           name: build openmpi
@@ -68,5 +68,5 @@ jobs:
             ctest -T test --output-on-failure -V
 
       - store_artifacts:
-          path: test-reports
-          destination: test-reports
+          path: ~/repo/build/
+          destination: build_output
