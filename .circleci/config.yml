@@ -28,7 +28,9 @@ jobs:
           name: install dependencies
           command: |
             sudo apt update
+            sudo apt-get install software-properties-common
             sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+            sudo add-apt-repository ppa:
             sudo apt-get update
             sudo apt install -y g++-7 libtiff5-dev libgomp1 libfftw3-dev libboost-all-dev libeigen3-dev libyaml-cpp-dev
 
