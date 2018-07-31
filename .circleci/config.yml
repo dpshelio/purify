@@ -101,9 +101,35 @@ jobs:
           path: ~/repo/build/
           destination: build_output
 
+  all_mac:
+    macos:
+      xcode: "9.0"
+    working_directory: ~/repo
+    environment:
+      OMP_NUM_THREADS: 4
+      LDFLAGS: '-pthread'
+      CC: gcc-7
+      CXX: g++-7
+
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            brew update
+            brew install gcc@7 fftw open-mpi
+      - run: *build-purify
+      - run: *compile-purify
+      - run: *test-purify
+      - store_artifacts:
+          path: ~/repo/build/
+          destination: build_mac_output
+
+
 workflows:
   version: 2
   ompi:
     jobs:
       - ompi_all
       - ompi_none
+      - all_mac
