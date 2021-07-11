@@ -1,0 +1,135 @@
+apt-run-14: &apt-install-14
+  name: install base
+  command: |
+    sudo apt update
+    sudo apt-get install -y software-properties-common
+    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    sudo apt-get update
+    sudo apt install -y curl cmake3 git g++-7 libtiff5-dev libfftw3-dev
+
+apt-extra-14: &apt-extra-14
+  name: install extra
+  command: |
+    sudo apt install -y libboost-all-dev libeigen3-dev libyaml-cpp-dev
+
+build-openmpi: &build-openmpi
+  # This installs the g-openmp and build openmpi from scratch
+  name: build openmpi
+  command: |
+    sudo apt install -y libgomp1
+    cwd=$(pwd)
+    cd /tmp
+    curl -O https://download.open-mpi.org/release/open-mpi/v3.1/openmpi-3.1.1.tar.bz2
+    tar jxf openmpi-3.1.1.tar.bz2
+    cd openmpi-3.1.1
+    ./configure --prefix=/usr
+    sudo make all install
+    cd $cwd
+
+build-purify: &build-purify
+  name: Build
+  command: |
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -Dtests=ON -Dexamples=OFF \
+    -Ddompi=ON -Dopenmp=ON -Ddocs=OFF -Dbenchmarks=OFF \
+    -DSopt_GIT_REPOSITORY=https://github.com/astro-informatics/sopt.git \
+    -DSopt_GIT_TAG=development \
+    -DCFitsIO_URL=https://github.com/UCL-RITS/BinaryBlobs-dependencies/raw/master/Astronomy/cfitsio3410.tar.gz \
+    -DMPIEXEC:FILEPATH=$(which mpirun) -DMPIEXEC_MAX_NUMPROCS=4 -DMPIEXEC_PREFLAGS="--allow-run-as-root"
+
+compile-purify: &compile-purify
+  name: Compile
+  command: |
+    cd ~/repo/build
+    make VERBOSE=1
+
+test-purify: &test-purify
+  name: run tests
+  command: |
+    cd ~/repo/build
+    ctest -T test --output-on-failure -V
+
+
+version: 2
+jobs:
+  ompi_all:
+    docker:
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      - image: ubuntu:14.04
+        environment:
+          OMP_NUM_THREADS: 4
+          LDFLAGS: '-pthread'
+          CC: gcc-7
+          CXX: g++-7
+
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run: *apt-install-14
+      - run: *apt-extra-14
+      - run: *build-openmpi
+      - run: *build-purify
+      - run: *compile-purify
+      - run: *test-purify
+
+  ompi_none:
+    docker:
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      - image: ubuntu:14.04
+    environment:
+      OMP_NUM_THREADS: 4
+      LDFLAGS: '-pthread'
+      CC: gcc-7
+      CXX: g++-7
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run: *apt-install-14
+      - run: *build-openmpi
+      - run: *build-purify
+      - run: *compile-purify
+      - run: *test-purify
+
+      - store_artifacts:
+          path: ~/repo/build/
+          destination: build_output
+
+  all_mac:
+    macos:
+      xcode: "9.0"
+    working_directory: ~/repo
+    environment:
+      OMP_NUM_THREADS: 4
+      LDFLAGS: '-pthread'
+      CC: gcc-7
+      CXX: g++-7
+
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            brew update
+            brew install gcc@7 fftw open-mpi
+      - run: *build-purify
+      - run: *compile-purify
+      - run: *test-purify
+      - store_artifacts:
+          path: ~/repo/build/
+          destination: build_mac_output
+
+
+workflows:
+  version: 2
+  ompi:
+    jobs:
+      - ompi_all
+      - ompi_none
+      - all_mac
